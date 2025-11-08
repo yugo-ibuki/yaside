@@ -1,0 +1,45 @@
+# テスト駆動開発ワークフロー
+workflows:
+  tdd-cycle:
+    description: "TDDサイクルを自動化"
+    steps:
+      - name: "テスト生成"
+        type: agent
+        agent:
+          type: claude
+          model: claude-sonnet-4-5
+        context:
+          files:
+            - "src/**/*.ts"
+        prompt: "{{input}}のユニットテストを生成してください。エッジケースや異常系のテストも含めてください。"
+
+      - name: "テスト実行"
+        type: command
+        command: "npm test"
+        on_failure:
+          action: continue
+
+      - name: "実装"
+        type: agent
+        agent:
+          type: claude
+        context:
+          files:
+            - "$step[0].output"
+            - "$step[1].output"
+        prompt: |
+          テストが通るように実装してください。
+
+          テスト結果を確認して、失敗しているテストをすべて通すようにコードを実装してください。
+          クリーンで保守性の高いコードを心がけてください。
+
+      - name: "再テスト"
+        type: command
+        command: "npm test"
+        on_failure:
+          action: retry
+          max_retries: 2
+
+      - name: "カバレッジ確認"
+        type: command
+        command: "npm run test:coverage"

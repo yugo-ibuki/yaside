@@ -1,0 +1,29 @@
+# シンプルなワークフロー例
+workflows:
+  hello-world:
+    description: "Hello Worldワークフロー"
+    steps:
+      - name: "挨拶を生成"
+        type: agent
+        agent:
+          type: claude
+        prompt: "{{input}}に対して親しみやすい挨拶を生成してください"
+
+  code-generation:
+    description: "コード生成のサンプル"
+    steps:
+      - name: "コード生成"
+        type: agent
+        agent:
+          type: claude
+          model: claude-sonnet-4-5
+        prompt: "{{input}}のTypeScript実装を生成してください。型安全でテストしやすいコードにしてください。"
+
+      - name: "コードレビュー"
+        type: agent
+        agent:
+          type: claude
+        context:
+          files:
+            - "$previous_output"
+        prompt: "生成されたコードをレビューし、改善点を指摘してください"
