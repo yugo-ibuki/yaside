@@ -158,26 +158,41 @@ export class WorkflowExecutor {
 
     if (step.reference) {
       console.log(`Reference: ${step.reference}`);
-
-      // 参照ファイルの内容を表示
-      if (fs.existsSync(step.reference)) {
-        console.log(`\n[Reference Content]`);
-        const content = fs.readFileSync(step.reference, 'utf-8');
-        console.log(content);
-      } else {
-        console.log(`Warning: Reference file not found: ${step.reference}`);
-      }
     }
 
-    // 実際のコマンド実行（デモ用）
+    // コマンドライン引数を構築
+    const commandArgs = this.buildCommandArgs(step);
+    const fullCommand = `${step.command} ${commandArgs}`;
+
     try {
-      console.log(`\n[Executing command: ${step.command}]`);
-      // 実際の環境では、ここでコマンドを実行します
-      // execSync(step.command, { stdio: 'inherit' });
+      console.log(`\n[Executing: ${fullCommand}]`);
+      execSync(fullCommand, {
+        stdio: 'inherit',
+        shell: '/bin/bash'
+      });
       console.log(`✓ Step completed successfully`);
     } catch (error) {
       console.error(`✗ Step failed:`, error);
       throw error;
     }
+  }
+
+  /**
+   * コマンドライン引数を構築
+   */
+  private buildCommandArgs(step: WorkflowStep): string {
+    const args: string[] = [];
+
+    // promptを引数として追加
+    if (step.prompt) {
+      args.push(`"${step.prompt.replace(/"/g, '\\"')}"`);
+    }
+
+    // referenceがある場合は --reference オプションとして追加
+    if (step.reference) {
+      args.push(`--reference "${step.reference.replace(/"/g, '\\"')}"`);
+    }
+
+    return args.join(' ');
   }
 }
