@@ -1,0 +1,50 @@
+workflows:
+  steps:
+    init:
+      name: "初期化"
+      command: echo
+      prompt: "プロジェクトを初期化します"
+
+    code:
+      name: "コード実装"
+      command: claude
+      reference: ./.claude/spec/XXX.md
+      prompt: "XXXに沿ってコードを書いてください"
+
+    review:
+      name: "コードレビュー"
+      command: codex
+      reference: ./.claude/review/XXX.md
+      prompt: "XXXに沿って現在のコードをレビューを行ってください"
+      group: review-code
+
+    fix:
+      name: "修正"
+      command: claude
+      reference: ./.claude/fix/XXX.md
+      prompt: "reviewステップで出た指摘を修正してください"
+      group: review-code
+
+    test:
+      name: "テスト実行"
+      command: npm
+      prompt: "テストを実行します"
+      group: test-verify
+
+    verify:
+      name: "検証"
+      command: npm
+      prompt: "品質検証を実行します"
+      group: test-verify
+
+    deploy:
+      name: "デプロイ"
+      command: deploy
+      prompt: "本番環境にデプロイします"
+
+settings:
+  groups:
+    - groupName: review-code
+      attempt: 3
+    - groupName: test-verify
+      attempt: 2

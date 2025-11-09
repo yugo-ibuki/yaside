@@ -1,0 +1,25 @@
+workflows:
+  steps:
+    code:
+      name: "code"
+      command: claude
+      reference: ./.claude/spec/XXX.md
+      prompt: "XXXに沿ってコードを書いてください"
+
+    review:
+      name: "review"
+      command: codex
+      reference: ./.claude/review/XXX.md
+      prompt: "XXXに沿って現在のコードをレビューを行ってください"
+      group: review-code
+
+    fix:
+      name: "fix"
+      command: claude
+      reference: ./.claude/fix/XXX.md
+      prompt: "reviewステップで出た指摘を修正してください"
+      group: review-code
+
+settings:
+  groupName: review-code
+  attempt: 3

@@ -1,13 +1,26 @@
-/**
- * ai-workflow - AI エージェントを使った開発ワークフローを自動化するためのツール
- *
- * プログラマティックに使用する場合のエントリーポイント
- */
+import { parseWorkflowYaml } from './workflow/parser';
+import { WorkflowExecutor } from './workflow/executor';
 
-export * from './types/index.js';
-export * from './parser/index.js';
-export * from './executor/index.js';
-export * from './agents/index.js';
-export * from './context/index.js';
-export * from './config/index.js';
-export * from './utils/index.js';
+async function main() {
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    console.error('Usage: yaside <workflow.yml>');
+    process.exit(1);
+  }
+
+  const workflowFile = args[0];
+
+  try {
+    console.log(`Loading workflow from: ${workflowFile}\n`);
+    const config = parseWorkflowYaml(workflowFile);
+
+    const executor = new WorkflowExecutor(config);
+    await executor.execute();
+  } catch (error) {
+    console.error('Error executing workflow:', error);
+    process.exit(1);
+  }
+}
+
+main();
