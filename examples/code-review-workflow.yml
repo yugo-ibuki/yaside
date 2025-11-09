@@ -1,0 +1,50 @@
+# コードレビューワークフロー
+workflows:
+  code-review:
+    description: "包括的なコードレビュー"
+    steps:
+      - name: "セキュリティチェック"
+        type: agent
+        agent:
+          type: claude
+        context:
+          files:
+            - "src/**/*.ts"
+        prompt: "セキュリティ脆弱性をチェックしてください。SQLインジェクション、XSS、CSRF、認証・認可の問題などに注目してください。"
+
+      - name: "パフォーマンス分析"
+        type: agent
+        agent:
+          type: claude
+        context:
+          files:
+            - "src/**/*.ts"
+        prompt: "パフォーマンスの問題を分析してください。N+1クエリ、メモリリーク、非効率なアルゴリズムなどに注目してください。"
+
+      - name: "コード品質チェック"
+        type: agent
+        agent:
+          type: claude
+        context:
+          files:
+            - "src/**/*.ts"
+        prompt: "コードの品質をチェックしてください。可読性、保守性、テストカバレッジなどに注目してください。"
+
+      - name: "レポート生成"
+        type: agent
+        agent:
+          type: claude
+        context:
+          files:
+            - "$step[0].output"
+            - "$step[1].output"
+            - "$step[2].output"
+        prompt: |
+          上記のレビュー結果をまとめて、Markdownでレポートを生成してください。
+
+          レポートには以下を含めてください:
+          - エグゼクティブサマリー
+          - セキュリティの問題
+          - パフォーマンスの問題
+          - コード品質の問題
+          - 推奨事項
